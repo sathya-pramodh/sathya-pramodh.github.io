@@ -166,6 +166,10 @@ const generateSummaryCode = (data: PortfolioData): string => {
 let portfolio = Portfolio {
     developer: Developer {
         name: "${data.personal.name}",
+        phone: "${data.personal.phone}",
+        email: "${data.personal.email}",
+        linkedin: "${data.personal.linkedin}",
+        github: "${data.personal.github}",
         location: "Bengaluru",
     },
 
