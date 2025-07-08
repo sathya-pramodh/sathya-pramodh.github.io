@@ -11,5 +11,5 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     - name: Github Pages deploy
-    - uses: skywarth/vite-github-pages-deployer@v1.5.0
+      uses: skywarth/vite-github-pages-deployer@v1.5.0
           
