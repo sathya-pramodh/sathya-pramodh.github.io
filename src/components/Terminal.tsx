@@ -195,7 +195,7 @@ ${data.projects.map(project => `        "${project.name}",`).join('\n')}
 
     // Press Shift+K here to view contact information or type :contact
     contact: "View contact information",
-}`;
+};`;
 };
 
 const generateEducationCode = (data: PortfolioData): string => {
