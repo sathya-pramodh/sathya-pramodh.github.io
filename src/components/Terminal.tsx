@@ -733,8 +733,9 @@ export const Terminal: React.FC = () => {
         ref={inputRef}
         type="text"
         className="absolute top-0 left-0 w-0 h-0 opacity-0"
-        readOnly
         onBlur={handleBlur}
+        onKeyDown={(e) => e.preventDefault()}
+        onKeyPress={(e) => e.preventDefault()}
         aria-hidden="true"
         autoCapitalize="off"
         autoCorrect="off"
