@@ -5,9 +5,21 @@ on:
     branches:
       - main
 
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+  
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
   deploy:
     runs-on: ubuntu-22.04
+    environment:
+      name: "Sathya's Portfolio"
+      url: ${{ steps.deploy_to_pages.outputs.github_pages_url }}
     steps:
     - uses: actions/checkout@v4
     - name: Github Pages deploy
