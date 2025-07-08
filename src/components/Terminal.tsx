@@ -162,6 +162,7 @@ const generateSummaryCode = (data: PortfolioData): string => {
 // • h/j/k/l for vim navigation
 // • Enter on links to open them
 // • : for command mode
+// • :help for command help
 
 let portfolio = Portfolio {
     developer: Developer {
@@ -235,7 +236,8 @@ export const Terminal: React.FC = () => {
   const [mode, setMode] = useState<'NORMAL' | 'INSERT' | 'COMMAND'>('NORMAL');
   const [command, setCommand] = useState('');
   const [showCommand, setShowCommand] = useState(false);
-  const [messages, setMessages] = useState<string[]>([]);
+  const [error, setError] = useState<string>("");
+  const [message, setMessage] = useState<string>("");
   const [navigationHistory, setNavigationHistory] = useState<Array<{ file: FileType, position: Position }>>([]);
   const [lastGPress, setLastGPress] = useState<number>(0);
 
@@ -499,14 +501,16 @@ export const Terminal: React.FC = () => {
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (showCommand) {
+      setMessage('');
+      setError('');
       if (e.key === 'Enter') {
         if (command === 'q' || command === 'quit') {
-          setMessages(prev => [...prev, 'Cannot quit from portfolio! Use Ctrl+W to close tab.']);
+          setError('Cannot quit from portfolio! Close tab manually.');
         } else if (command === 'w' || command === 'write') {
-          setMessages(prev => [...prev, 'Portfolio saved to memory.']);
+          setMessage('Portfolio saved! (not actually).');
         } else if (command.startsWith('help')) {
-          setMessages(prev => [...prev, 'Available commands: q, w, help, summary, education, internship, projects, skills, coding, achievements, contact']);
-        } else if (command === 'summary') {
+          setMessage('Available commands: q, w, help, portfolio, education, internship, projects, skills, coding, achievements, contact');
+        } else if (command === 'portfolio') {
           switchToFile('summary');
         } else if (command === 'education') {
           switchToFile('education');
@@ -523,7 +527,7 @@ export const Terminal: React.FC = () => {
         } else if (command === 'contact') {
           switchToFile('contact');
         } else if (command) {
-          setMessages(prev => [...prev, `Unknown command: ${command}`]);
+          setError(`Unknown command: ${command}`);
         }
         setShowCommand(false);
         setCommand('');
@@ -707,8 +711,35 @@ export const Terminal: React.FC = () => {
     );
   };
 
+  const inputRef = React.useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, []);
+
+  const handleBlur = () => {
+    // Re-focus the input if it loses focus (e.g., when touch keyboard is dismissed)
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  };
+
   return (
     <div className="bg-tokyo-bg text-tokyo-fg h-screen font-mono text-sm flex flex-col">
+      {/* Hidden input to trigger mobile keyboard */}
+      <input
+        ref={inputRef}
+        type="text"
+        className="absolute top-0 left-0 w-0 h-0 opacity-0"
+        readOnly
+        onBlur={handleBlur}
+        aria-hidden="true"
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck="false"
+      />
       {/* Main content */}
       <div
         ref={codeContainerRef}
@@ -763,7 +794,10 @@ export const Terminal: React.FC = () => {
             <span className="bg-tokyo-blue text-tokyo-bg inline-block w-2 ml-1">\u00A0</span>
           </>
         ) : (
-          <span className="text-transparent text-sm">\u00A0</span>
+          <>
+            <span className={(message === "") ? "text-tokyo-red1" : "text-tokyo-yellow" + "text-sm"}>{(message === "") ? error : message}</span>
+            <span className="text-transparent text-sm">\u00A0</span>
+          </>
         )}
       </div>
     </div>
