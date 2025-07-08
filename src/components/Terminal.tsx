@@ -499,12 +499,6 @@ export const Terminal: React.FC = () => {
     }
   };
 
-  const handleInputChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    if (showCommand) {
-      setCommand(e.target.value);
-    }
-  }, [showCommand]);
-
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (showCommand) {
       setMessage('');
@@ -666,23 +660,6 @@ export const Terminal: React.FC = () => {
     }
   }, [mode, position, totalLines, lines, links, showCommand, command, currentFile, navigationHistory, lastGPress]);
 
-  const handleInputKeyDown = useCallback((e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (showCommand && e.key === 'Enter') {
-      e.preventDefault(); // Prevent form submission or new line
-      handleKeyDown(e as unknown as KeyboardEvent); // Pass to main handler
-    } else if (showCommand && e.key === 'Backspace') {
-      // Allow backspace to function normally in the input field
-    } else if (showCommand && e.key === 'Escape') {
-      e.preventDefault();
-      handleKeyDown(e as unknown as KeyboardEvent);
-    } else if (showCommand) {
-      // For other keys in command mode, let the input handle them
-    } else {
-      // For normal mode, pass all keys to the main handler
-      handleKeyDown(e as unknown as KeyboardEvent);
-    }
-  }, [showCommand, handleKeyDown]);
-
   useEffect(() => {
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
@@ -756,8 +733,6 @@ export const Terminal: React.FC = () => {
         type="text"
         className="absolute top-0 left-0 w-0 h-0 opacity-0"
         onBlur={handleBlur}
-        onChange={handleInputChange}
-        onKeyDown={handleInputKeyDown}
         aria-hidden="true"
         autoCapitalize="off"
         autoCorrect="off"
