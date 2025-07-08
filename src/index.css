@@ -1,0 +1,49 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+	font-family: 'JetBrains Mono', monospace;
+	margin: 0;
+	padding: 0;
+	background-color: #24283b;
+}
+
+* {
+	scrollbar-width: thin;
+	scrollbar-color: #414868 #24283b;
+}
+
+*::-webkit-scrollbar {
+	width: 8px;
+}
+
+*::-webkit-scrollbar-track {
+	background: #24283b;
+}
+
+*::-webkit-scrollbar-thumb {
+	background-color: #414868;
+	border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+	background-color: #565f89;
+}
+
+.cursor-blink {
+	animation: blink 1s infinite;
+}
+
+@keyframes blink {
+
+	0%,
+	50% {
+		opacity: 1;
+	}
+
+	51%,
+	100% {
+		opacity: 0;
+	}
+}
