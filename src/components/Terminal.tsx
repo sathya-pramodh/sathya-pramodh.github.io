@@ -1,237 +1,39 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Code } from 'lucide-react';
 import { tokenizeRustLine } from '../utils/rustSyntax';
+import generatePortfolioCode from '../sections/Portfolio';
+import generateEducationCode from "../sections/Education";
+import generateInternshipCode from "../sections/Internship";
+import generateProjectsCode from "../sections/Projects";
+import generateSkillsCode from "../sections/Skills";
+import generateCodingCode from "../sections/Coding";
+import generateAchievementsCode from "../sections/Achievements";
+import generateContactCode from "../sections/Contact";
+
+type FileType = 'portfolio' | 'education' | 'internship' | 'projects' | 'skills' | 'coding' | 'achievements' | 'contact';
 
 interface Position {
   line: number;
   column: number;
 }
 
-interface PortfolioData {
-  personal: {
-    name: string;
-    phone: string;
-    email: string;
-    linkedin: string;
-    github: string;
-  };
-  education: {
-    institution: string;
-    duration: string;
-    degree: string;
-    gpa: string;
-    coursework: string[];
-  };
-  internship: {
-    company: string;
-    duration: string;
-    role: string;
-    points: string[];
-  };
-  projects: Array<{
-    name: string;
-    tech: string[];
-    duration: string;
-    points: string[];
-    github: string;
-  }>;
-  skills: {
-    languages: string[];
-    technologies: string[];
-    frameworks: string[];
-    developerTools: string[];
-  };
-  codingPlatforms: Array<{
-    name: string;
-    count: string;
-    link: string;
-  }>;
-  achievements: string[];
-}
-
-const portfolioData: PortfolioData = {
-  personal: {
-    name: "N Sathya Pramodh",
-    phone: "+91-7259469949",
-    email: "sathyapramodh10@gmail.com",
-    linkedin: "https://linkedin.com/in/sathya-pramodh-606877259",
-    github: "https://github.com/sathya-pramodh",
-  },
-  education: {
-    institution: "Ramaiah Institute of Technology, Bengaluru",
-    duration: "2022 - 2026",
-    degree: "B.E - Information Science and Engineering",
-    gpa: "9.17/10.0",
-    coursework: ["DSA", "OOPS Concepts", "Operating Systems", "DBMS", "UI/UX Design", "Computer Networks", "Theory of Computation", "Machine Learning*", "Cloud Computing*", "Systems Design*", "Devops*", "System Simulation*"],
-  },
-  internship: {
-    company: "Samsung RND Institute, Bengaluru",
-    duration: "Sep 2024 - Present",
-    role: "Research Intern",
-    points: [
-      "Coded the BPR model in Tensorflow to recommend apps using sequential data with an accuracy of 92%.",
-      "Gathered metrics for various models and fine-tuned them to increase training speeds by 30%.",
-      "Optimized the BPR and MLP models for on-device training with a maximum power efficiency of 80%.",
-      "Reviewed about 5 research papers independently to come up with the necessary algorithms to use.",
-    ],
-  },
-  projects: [
-    {
-      name: "Neovim",
-      tech: ["C", "Lua", "Developer Tools", "Text Editor", "MessagePack RPC", "Open Source"],
-      duration: "2025 - Present",
-      points: [
-        "Fixed an issue with \":checkhealth\" not reporting irregular configurations in language providers.",
-        "Fixed an issue with stderr messages being highlighted differently in \":!cmd\" outputs.",
-        "Implemented the \":restart\" command which removed the need of having to quit out of Neovim to reload.",
-        "Created a sample Neovim configuration to demonstrate the usage of the \":restart\" command.",
-      ],
-      github: "https://github.com/neovim/neovim",
-    },
-    {
-      name: "PaceManBot",
-      tech: ["Rust", "Discord API", "Websockets", "Serenity-rs", "Minecraft"],
-      duration: "2023 - Present",
-      points: [
-        "Deployed an end-to-end system using Websockets and Discord API to serve 125+ discord servers.",
-        "Built an in-memory caching system from scratch to bring message delays from 10s down to 1s.",
-        "Supported multiple versions of Minecraft like 1.15 and 1.7 to improve usability.",
-        "Added support for the All Advancements category of Minecraft Speedrunning for the version 1.16.1.",
-      ],
-      github: "https://github.com/paceman-mcsr/pacemanbot",
-    },
-    {
-      name: "Resetti",
-      tech: ["Golang", "Macros", "Linux Desktop Automation", "Github Actions", "Minecraft"],
-      duration: "2022 - Present",
-      points: [
-        "Developed an initial version of the Moving Wall feature which improved end-user experience.",
-        "Implemented a simple and lightweight Logging framework which improved developer experience.",
-        "Built workflows to automatically distribute the macro through the Arch User Repositories (AUR).",
-        "Added support to configure multiple resolutions to enhance compatibility.",
-      ],
-      github: "https://github.com/tesselslate/resetti",
-    },
-    {
-      name: "AHKLinux",
-      tech: ["Python3", "Interpreter Design", "Unit testing"],
-      duration: "2021 - 2024",
-      points: [
-        "Developed a simple interpreter system to parse AutoHotKey scripts on Linux/X11 Desktops natively.",
-        "Packaged the CLI system using PyPi for distribution through pip.",
-        "Created unit tests using Pytest to improve test coverage.",
-        "Wrote integration and system tests to improve GUI testing.",
-      ],
-      github: "https://github.com/sathya-pramodh/AHKLinux",
-    },
-  ],
-  skills: {
-    languages: ["C", "Lua", "Python3", "Rust", "Golang", "Java", "SQL", "Bash"],
-    technologies: ["Discord API", "MySQL", "Oracle SQL", "Firebase Cloud Firestore", "MessagePack RPC", "Websockets"],
-    frameworks: ["Flutter", "Serenity-rs", "Pytest", "X11 xproto", "tokio", "tokio-tungstenite", "serde", "serde-json"],
-    developerTools: ["Neovim", "Figma", "Jupyter Notebook", "Linux terminal", "mdBook", "Git", "Github", "Github Actions", "Docker", "Tmux", "IntelliJ IDEA", "Android Studio"],
-  },
-  codingPlatforms: [
-    {
-      name: "Codeforces",
-      count: "400+",
-      link: "https://codeforces.com/profile/sathya_pramodh",
-    },
-    {
-      name: "LeetCode",
-      count: "100+",
-      link: "https://leetcode.com/u/sathya-pramodh/",
-    },
-  ],
-  achievements: [
-    "Selected in SIH at College Level in 2022-23 and 2023-24 along with 4 other members.",
-    "Participated in Solving For India at Zonal Level in 2022 as a team of 4.",
-    "Participated in Code To Give, a hackathon by Morgan Stanley in 2025 as a team of 6.",
-    "Mentored in wHACKiest, a 24-hour hackathon by CodeRIT (the most active coding club of RIT).",
-    "Served as the Lead of CodeRIT in 2025-2026.",
-  ],
+const fileNames = {
+  portfolio: 'portfolio.rs',
+  education: 'education.rs',
+  internship: 'internship.rs',
+  projects: 'projects.rs',
+  skills: 'skills.rs',
+  coding: 'coding.rs',
+  achievements: 'achievements.rs',
+  contact: 'contact.rs'
 };
 
-type FileType = 'summary' | 'education' | 'internship' | 'projects' | 'skills' | 'coding' | 'achievements' | 'contact';
-
-const generateSummaryCode = (data: PortfolioData): string => {
-  return `// portfolio.rs - Developer Portfolio
-// Navigation:
-// • Shift+K on any section to view details
-// • Ctrl+O to go back to previous location
-// • h/j/k/l for vim navigation
-// • Enter on links to open them
-// • : for command mode
-// • :help for command help
-
-let portfolio = Portfolio {
-    developer: Developer {
-        name: "${data.personal.name}",
-        phone: "${data.personal.phone}",
-        email: "${data.personal.email}",
-        linkedin: "${data.personal.linkedin}",
-        github: "${data.personal.github}",
-        location: "Bengaluru",
-    },
-
-    // Press Shift+K here to view detailed education or type :education
-    education: "${data.education.degree}",
-
-    // Press Shift+K here to view detailed internship or type :internship
-    internship: "${data.internship.role} at ${data.internship.company}",
-
-    // Press Shift+K here to view project details or type :projects
-    projects: vec![
-${data.projects.map(project => `        "${project.name}",`).join('\n')}
-    ],
-
-    // Press Shift+K here to view all skills or type :skills
-    skills: "View all skills",
-
-    // Press Shift+K here to view coding platforms or type :coding
-    coding_platforms: "View coding platforms",
-
-    // Press Shift+K here to view achievements or type :achievements
-    achievements: "View achievements",
-
-    // Press Shift+K here to view contact information or type :contact
-    contact: "View contact information",
-};`;
-};
-
-const generateEducationCode = (data: PortfolioData): string => {
-  return `// education.rs - Education\n\nlet education = Education {\n    institution: "${data.education.institution}",\n    duration: "${data.education.duration}",\n    degree: "${data.education.degree}",\n    gpa: "${data.education.gpa}",\n    coursework: vec![\n${data.education.coursework.map(course => `        "${course}",`).join('\n')}\n    ],\n};`;
-}
-
-const generateInternshipCode = (data: PortfolioData): string => {
-  return `// internship.rs - Internship Experience\n\nlet internship = Internship {\n    company: "${data.internship.company}",\n    duration: "${data.internship.duration}",\n    role: "${data.internship.role}",\n    responsibilities: vec![\n${data.internship.points.map(point => `        "${point.replace(/"/g, '\\"')}",`).join('\n')}\n    ],\n};`;
-}
-
-const generateProjectsCode = (data: PortfolioData): string => {
-  return `// projects.rs - Portfolio Projects\n\nlet projects = vec![\n${data.projects.map((project, index) => `    Project {\n        id: ${index + 1},\n        name: "${project.name}",\n        duration: "${project.duration}",\n        technologies: vec![${project.tech.map(tech => `"${tech}"`).join(', ')}],\n        github_url: "${project.github}",\n        description: vec![\n${project.points.map(point => `            "${point.replace(/"/g, '\\"')}",`).join('\n')}\n        ],\n    },`).join('\n\n')}\n];`;
-};
-
-const generateSkillsCode = (data: PortfolioData): string => {
-  return `// skills.rs - Technical Skills\n\nlet skills = SkillSet {\n    languages: vec![\n${data.skills.languages.map(lang => `        "${lang}",`).join('\n')}\n    ],\n    technologies: vec![\n${data.skills.technologies.map(tech => `        "${tech}",`).join('\n')}\n    ],
-    frameworks: vec![\n${data.skills.frameworks.map(framework => `        "${framework}",`).join('\n')}\n    ],
-    developer_tools: vec![\n${data.skills.developerTools.map(tool => `        "${tool}",`).join('\n')}\n    ],\n};`;
-};
-
-const generateCodingCode = (data: PortfolioData): string => {
-  return `// coding.rs - Coding Platforms\n\nlet coding_platforms = vec![\n${data.codingPlatforms.map(platform => `    Platform {\n        name: "${platform.name}",\n        problems_solved: "${platform.count}",\n        profile_link: "${platform.link}",\n    },`).join('\n\n')}\n];`;
-}
-
-const generateAchievementsCode = (data: PortfolioData): string => {
-  return `// achievements.rs - Achievements\n\nlet achievements = vec![\n${data.achievements.map(achievement => `    "${achievement.replace(/"/g, '\\"')}",`).join('\n')}\n];`;
-}
-
-const generateContactCode = (data: PortfolioData): string => {
-  return `// contact.rs - Contact Information\n\nlet contact = ContactInfo {\n    personal: PersonalInfo {\n        email: "${data.personal.email}",\n        phone: "${data.personal.phone}",\n    },\n\n    social_links: SocialLinks {\n        github: "${data.personal.github}",\n        linkedin: "${data.personal.linkedin}",\n    },\n};`;
-};
+const isWordChar = (char: string) => /[a-zA-Z0-9_:",={}/+\-*.![\]%\\()@]/.test(char);
+const isWhitespace = (char: string) => /\s/.test(char);
 
 export const Terminal: React.FC = () => {
-  const [currentFile, setCurrentFile] = useState<FileType>('summary');
-  const [code, setCode] = useState(() => generateSummaryCode(portfolioData));
+  const [currentFile, setCurrentFile] = useState<FileType>('portfolio');
+  const [code, setCode] = useState(() => generatePortfolioCode());
   const [position, setPosition] = useState<Position>({ line: 0, column: 0 });
   const [mode, setMode] = useState<'NORMAL' | 'INSERT' | 'COMMAND'>('NORMAL');
   const [command, setCommand] = useState('');
@@ -240,17 +42,6 @@ export const Terminal: React.FC = () => {
   const [message, setMessage] = useState<string>("");
   const [navigationHistory, setNavigationHistory] = useState<Array<{ file: FileType, position: Position }>>([]);
   const [lastGPress, setLastGPress] = useState<number>(0);
-
-  const fileNames = {
-    summary: 'portfolio.rs',
-    education: 'education.rs',
-    internship: 'internship.rs',
-    projects: 'projects.rs',
-    skills: 'skills.rs',
-    coding: 'coding.rs',
-    achievements: 'achievements.rs',
-    contact: 'contact.rs'
-  };
 
   const codeContainerRef = useCallback((node: HTMLDivElement | null) => {
     if (node) {
@@ -305,10 +96,6 @@ export const Terminal: React.FC = () => {
     return links;
   }, [lines]);
 
-  // Word navigation helpers
-  const isWordChar = (char: string) => /[a-zA-Z0-9_:",={}/+\-*.![\]%\\()@]/.test(char);
-  const isWhitespace = (char: string) => /\s/.test(char);
-
   const findNextWord = (currentPos: Position) => {
     const currentLine = lines[currentPos.line];
     if (!currentLine) return currentPos;
@@ -343,7 +130,6 @@ export const Terminal: React.FC = () => {
         column = 0;
       }
     }
-
     return { line: Math.min(line, lines.length - 1), column };
   };
 
@@ -429,29 +215,29 @@ export const Terminal: React.FC = () => {
 
     let newCode = '';
     switch (fileType) {
-      case 'summary':
-        newCode = generateSummaryCode(portfolioData);
+      case 'portfolio':
+        newCode = generatePortfolioCode();
         break;
       case 'education':
-        newCode = generateEducationCode(portfolioData);
+        newCode = generateEducationCode();
         break;
       case 'internship':
-        newCode = generateInternshipCode(portfolioData);
+        newCode = generateInternshipCode();
         break;
       case 'projects':
-        newCode = generateProjectsCode(portfolioData);
+        newCode = generateProjectsCode();
         break;
       case 'skills':
-        newCode = generateSkillsCode(portfolioData);
+        newCode = generateSkillsCode();
         break;
       case 'coding':
-        newCode = generateCodingCode(portfolioData);
+        newCode = generateCodingCode();
         break;
       case 'achievements':
-        newCode = generateAchievementsCode(portfolioData);
+        newCode = generateAchievementsCode();
         break;
       case 'contact':
-        newCode = generateContactCode(portfolioData);
+        newCode = generateContactCode();
         break;
     }
 
@@ -467,29 +253,29 @@ export const Terminal: React.FC = () => {
 
       let newCode = '';
       switch (lastLocation.file) {
-        case 'summary':
-          newCode = generateSummaryCode(portfolioData);
+        case 'portfolio':
+          newCode = generatePortfolioCode();
           break;
         case 'education':
-          newCode = generateEducationCode(portfolioData);
+          newCode = generateEducationCode();
           break;
         case 'internship':
-          newCode = generateInternshipCode(portfolioData);
+          newCode = generateInternshipCode();
           break;
         case 'projects':
-          newCode = generateProjectsCode(portfolioData);
+          newCode = generateProjectsCode();
           break;
         case 'skills':
-          newCode = generateSkillsCode(portfolioData);
+          newCode = generateSkillsCode();
           break;
         case 'coding':
-          newCode = generateCodingCode(portfolioData);
+          newCode = generateCodingCode();
           break;
         case 'achievements':
-          newCode = generateAchievementsCode(portfolioData);
+          newCode = generateAchievementsCode();
           break;
         case 'contact':
-          newCode = generateContactCode(portfolioData);
+          newCode = generateContactCode();
           break;
       }
 
@@ -500,6 +286,12 @@ export const Terminal: React.FC = () => {
   };
 
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    const currentLink = links.find(link =>
+      link.line === position.line &&
+      position.column >= link.column &&
+      position.column < link.text.length
+    );
+    const now = Date.now();
     if (showCommand) {
       setMessage('');
       setError('');
@@ -511,7 +303,7 @@ export const Terminal: React.FC = () => {
         } else if (command.startsWith('help')) {
           setMessage('Available commands: q, w, help, portfolio, education, internship, projects, skills, coding, achievements, contact');
         } else if (command === 'portfolio') {
-          switchToFile('summary');
+          switchToFile('portfolio');
         } else if (command === 'education') {
           switchToFile('education');
         } else if (command === 'internship') {
@@ -594,8 +386,8 @@ export const Terminal: React.FC = () => {
             const section = detectSection(position.line);
             if (section && section !== currentFile) {
               switchToFile(section);
-            } else if (currentFile !== 'summary') {
-              switchToFile('summary');
+            } else if (currentFile !== 'portfolio') {
+              switchToFile('portfolio');
             } else {
               const nextLink = findNearestLink(position, 'next');
               if (nextLink) {
@@ -615,11 +407,6 @@ export const Terminal: React.FC = () => {
           break;
         case 'Enter':
           e.preventDefault();
-          const currentLink = links.find(link =>
-            link.line === position.line &&
-            position.column >= link.column &&
-            position.column < link.text.length
-          );
           if (currentLink) {
             window.open(currentLink.url, '_blank');
           }
@@ -632,7 +419,6 @@ export const Terminal: React.FC = () => {
           break;
         case 'g':
           e.preventDefault();
-          const now = Date.now();
           if (now - lastGPress < 500) {
             // Double g - go to top
             setPosition({ line: 0, column: 0 });
